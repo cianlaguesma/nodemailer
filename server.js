@@ -16,13 +16,14 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-function sendMail(from, to, subject, text, attachments) {
+function sendMail(from, to, subject, text, attachments, path) {
   const mailOptions = {
     from: from,
     to: to,
     subject: subject,
     text: text,
-    attachments: attachments
+    attachments: attachments,
+    path: path
   };
 
   transporter.sendMail(mailOptions, function(err, data) {
@@ -30,7 +31,15 @@ function sendMail(from, to, subject, text, attachments) {
       console.log(err);
     } else {
       console.log("sent");
+      plsdelete(path);
     }
+  });
+}
+
+function plsdelete(path) {
+  fs.unlink(path, function(err) {
+    if (err) throw err;
+    console.log("deleted again");
   });
 }
 
@@ -59,20 +68,22 @@ http
             "cian.laguesma@obf.ateneo.edu",
             "test",
             "working",
-            attachments
+            attachments,
+            newpath
           );
+
           res.end();
         });
       });
-    // } else {
-    //   res.writeHead(200, { "Content-Type": "text/html" });
-    //   res.write(
-    //     '<form action="fileupload" method="post" enctype="multipart/form-data">'
-    //   );
-    //   res.write('<input type="file" name="filetoupload"><br>');
-    //   res.write('<input type="submit">');
-    //   res.write("</form>");
-    //   return res.end();
-    // }
+    } else {
+      res.writeHead(200, { "Content-Type": "text/html" });
+      res.write(
+        '<form action="fileupload" method="post" enctype="multipart/form-data">'
+      );
+      res.write('<input type="file" name="filetoupload"><br>');
+      res.write('<input type="submit">');
+      res.write("</form>");
+      return res.end();
+    }
   })
   .listen(8001);
